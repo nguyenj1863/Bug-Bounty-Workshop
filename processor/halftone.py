@@ -29,10 +29,12 @@ def apply_halftone(input_path, output_path, dot_spacing=10, style="classic"):
                     for cx in range(x, min(x + dot_spacing, width)):
                         total += pixels[cx, cy]
                         count += 1
+                if count == 0:
+                    continue
                 avg = total / count
 
-                intensity = avg / 255  # Normalize pixel intensity to 0-1 range
-                radius = max_radius * intensity
+                darkness = 1 - (avg / 255)
+                radius = max_radius * darkness
 
                 if radius > 0.5:
                     center_x = x + dot_spacing // 2
@@ -63,6 +65,8 @@ def apply_halftone(input_path, output_path, dot_spacing=10, style="classic"):
                         b_total += b
                         count += 1
 
+                if count == 0:
+                    continue
                 avg_brightness = (r_total + g_total + b_total) / (count * 3)
 
                 darkness = 1 - (avg_brightness / 255)
@@ -92,6 +96,8 @@ def apply_halftone(input_path, output_path, dot_spacing=10, style="classic"):
                     for cx in range(x, min(x + dot_spacing, width)):
                         total += pixels[cx, cy]
                         count += 1
+                if count == 0:
+                    continue
                 avg = total / count
 
                 darkness = 1 - (avg / 255)

@@ -12,23 +12,38 @@ def process_batch(batch_id):
     batch.status = "processing"
     batch.save()
 
+    dot_spacing = 10
+    style = "classic"
+    try:
+        profile = batch.user.profile
+        dot_spacing = profile.dot_spacing
+        style = profile.style
+    except Exception:
+        pass
+
     images = ImageUpload.objects.filter(batch=batch)
-    for i, upload in enumerate(images):
+    processed_count = 0
+    failures = 0
+    for upload in images:
         try:
             original_path = upload.original.path
             filename = f"halftone_{upload.pk}.png"
             output_path = os.path.join(settings.MEDIA_ROOT, "processed", filename)
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-            apply_halftone(original_path, output_path)
+            apply_halftone(
+                original_path, output_path,
+                dot_spacing=dot_spacing, style=style,
+            )
 
             upload.processed = f"processed/{filename}"
             upload.save()
-
-            batch.processed_count = i + 1
-            batch.save()
         except Exception:
-            continue
+            failures += 1
+        finally:
+            processed_count += 1
+            batch.processed_count = processed_count
+            batch.save(update_fields=["processed_count"])
 
-    batch.status = "completed"
-    batch.save()
+    batch.status = "failed" if failures else "completed"
+    batch.save(update_fields=["status"])
