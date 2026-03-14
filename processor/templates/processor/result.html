@@ -15,11 +15,17 @@
     </div>
     <div>
         <h2>Halftone</h2>
-        <img src="{{ upload.processed.url }}" alt="Halftone">
+        {% if upload.processed %}
+            <img src="{{ upload.processed.url }}" alt="Halftone">
+        {% else %}
+            <p>Processing failed or not yet complete.</p>
+        {% endif %}
     </div>
 </div>
 <div style="margin-top:1rem;display:flex;gap:1rem;">
+    {% if upload.processed %}
     <a href="{{ upload.processed.url }}" download="halftone.png"><button type="button">Download Halftone</button></a>
+    {% endif %}
     <a href="{% url 'upload' %}"><button type="button">Upload another</button></a>
 </div>
 {% endblock %}
