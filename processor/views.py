@@ -108,8 +108,11 @@ def preset_create_view(request):
     if request.method == "POST":
         form = PresetForm(request.POST)
         if form.is_valid():
-            preset = form.save(commit=False)
-            preset.user = request.user
+            preset = Preset(
+                user=request.user,
+                name=form.cleaned_data["name"],
+                is_default=form.cleaned_data["is_default"],
+            )
             preset.config = {
                 "dot_spacing": form.cleaned_data["dot_spacing"],
                 "style": form.cleaned_data["style"],
